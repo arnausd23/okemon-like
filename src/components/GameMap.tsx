@@ -2,7 +2,6 @@
 import React from "react";
 import { GameConfig, Tile, TileMap } from "@/types/game";
 import TerrainTile from "./TerrainTile";
-import { terrainSprites } from "@/data/terrainData";
 
 interface GameMapProps {
   config: GameConfig;
