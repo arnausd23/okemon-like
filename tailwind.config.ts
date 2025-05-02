@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,13 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				game: {
+					'grass': '#4ade80',
+					'ground': '#d2b48c',
+					'rock': '#9ca3af',
+					'water': '#60a5fa',
+					'ui': '#8b5cf6'
 				}
 			},
 			borderRadius: {
@@ -84,6 +92,10 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'sprite-animation': {
+					'0%': { transform: 'translateX(0)' },
+					'100%': { transform: 'translateX(-100%)' }
 				}
 			},
 			animation: {
