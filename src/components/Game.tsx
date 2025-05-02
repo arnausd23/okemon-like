@@ -4,35 +4,65 @@ import GameMap from "./GameMap";
 import GameCharacter from "./GameCharacter";
 import AnimationSelector from "./AnimationSelector";
 import GameController from "./GameController";
-import { CharacterSprite, GameConfig, Position, SpriteAnimation } from "@/types/game";
+import { CharacterSprite, GameConfig, Position, SpriteAnimation, TileMap } from "@/types/game";
 import { characterSprites } from "@/data/spriteData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { generateTileMap, getTileAt } from "@/utils/mapGenerator";
+import { isWalkable } from "@/data/terrainData";
 
 const Game: React.FC = () => {
   const [sprite] = useState<CharacterSprite>(characterSprites[0]);
   const [selectedAnimation, setSelectedAnimation] = useState<SpriteAnimation>(sprite.animations[0]);
-  const [position, setPosition] = useState<Position>({ x: 5, y: 5 });
   const gameContainerRef = useRef<HTMLDivElement>(null);
 
   const gameConfig: GameConfig = {
     tileSize: 32,
-    mapWidth: 20,
-    mapHeight: 15,
+    mapWidth: 25,
+    mapHeight: 20,
     scale: 2
   };
 
+  const [tileMap, setTileMap] = useState<TileMap>([]);
+  const [position, setPosition] = useState<Position>({ 
+    x: Math.floor(gameConfig.mapWidth / 2),
+    y: Math.floor(gameConfig.mapHeight / 2)
+  });
+
+  // Generate the map on initial render
+  useEffect(() => {
+    const map = generateTileMap(gameConfig.mapWidth, gameConfig.mapHeight);
+    setTileMap(map);
+  }, [gameConfig.mapWidth, gameConfig.mapHeight]);
+
   const handleMove = (dx: number, dy: number) => {
+    if (tileMap.length === 0) return; // Don't move if map isn't generated yet
+    
     setPosition((prev) => {
-      const newX = Math.max(0, Math.min(gameConfig.mapWidth - 1, prev.x + dx));
-      const newY = Math.max(0, Math.min(gameConfig.mapHeight - 1, prev.y + dy));
-      return { x: newX, y: newY };
+      const newX = prev.x + dx;
+      const newY = prev.y + dy;
+      
+      // Check if the new position is within map boundaries
+      if (
+        newX < 0 || newX >= gameConfig.mapWidth || 
+        newY < 0 || newY >= gameConfig.mapHeight
+      ) {
+        return prev;
+      }
+      
+      // Check if the new position is walkable
+      const targetTile = getTileAt(tileMap, newX, newY);
+      if (targetTile && isWalkable(targetTile.type)) {
+        return { x: newX, y: newY };
+      }
+      
+      return prev;
     });
   };
 
   // Scroll the map to center on the character
   useEffect(() => {
-    if (gameContainerRef.current) {
+    if (gameContainerRef.current && tileMap.length > 0) {
       const container = gameContainerRef.current;
       const characterX = position.x * gameConfig.tileSize;
       const characterY = position.y * gameConfig.tileSize;
@@ -50,7 +80,7 @@ const Game: React.FC = () => {
         behavior: 'smooth'
       });
     }
-  }, [position, gameConfig.tileSize]);
+  }, [position, gameConfig.tileSize, tileMap]);
 
   return (
     <div className="container py-6 max-w-4xl mx-auto">
@@ -70,7 +100,7 @@ const Game: React.FC = () => {
             <CardHeader>
               <CardTitle>Game World</CardTitle>
               <CardDescription>
-                Explore the pixel world with your character
+                Explore the pixel world with your character. Use arrow keys or on-screen controls to move.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -84,14 +114,18 @@ const Game: React.FC = () => {
                 }}
               >
                 <div className="relative">
-                  <GameMap config={gameConfig} />
-                  <GameCharacter
-                    sprite={sprite}
-                    position={position}
-                    animation={selectedAnimation}
-                    scale={gameConfig.scale}
-                    tileSize={gameConfig.tileSize}
-                  />
+                  {tileMap.length > 0 && (
+                    <>
+                      <GameMap config={gameConfig} tileMap={tileMap} />
+                      <GameCharacter
+                        sprite={sprite}
+                        position={position}
+                        animation={selectedAnimation}
+                        scale={gameConfig.scale}
+                        tileSize={gameConfig.tileSize}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
               

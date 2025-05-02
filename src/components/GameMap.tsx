@@ -1,56 +1,25 @@
 
 import React from "react";
-import { GameConfig } from "@/types/game";
-
-interface Tile {
-  x: number;
-  y: number;
-  type: "grass" | "ground" | "rock" | "water";
-}
+import { GameConfig, Tile, TileMap } from "@/types/game";
+import TerrainTile from "./TerrainTile";
+import { terrainSprites } from "@/data/terrainData";
 
 interface GameMapProps {
   config: GameConfig;
+  tileMap: TileMap;
 }
 
-const GameMap: React.FC<GameMapProps> = ({ config }) => {
-  const { tileSize, mapWidth, mapHeight, scale } = config;
+const GameMap: React.FC<GameMapProps> = ({ config, tileMap }) => {
+  const { tileSize, mapWidth, mapHeight } = config;
   
-  // Generate a simple map with mostly grass and some paths
-  const tiles: Tile[] = [];
+  // Flatten the tilemap for rendering
+  const flatTiles: Tile[] = [];
+  tileMap.forEach(row => {
+    row.forEach(tile => {
+      flatTiles.push(tile);
+    });
+  });
   
-  // Create a basic map layout
-  for (let y = 0; y < mapHeight; y++) {
-    for (let x = 0; x < mapWidth; x++) {
-      // Create a simple path pattern
-      let type: Tile["type"] = "grass";
-      
-      // Create a horizontal path
-      if (y === Math.floor(mapHeight / 2)) {
-        type = "ground";
-      }
-      
-      // Create a vertical path
-      if (x === Math.floor(mapWidth / 2)) {
-        type = "ground";
-      }
-      
-      // Add some rocks randomly
-      if (type === "grass" && Math.random() < 0.05) {
-        type = "rock";
-      }
-      
-      // Add some water spots
-      if (type === "grass" && 
-          x > mapWidth * 0.7 && 
-          y > mapHeight * 0.7 && 
-          Math.random() < 0.4) {
-        type = "water";
-      }
-      
-      tiles.push({ x, y, type });
-    }
-  }
-
   return (
     <div 
       className="relative"
@@ -59,35 +28,17 @@ const GameMap: React.FC<GameMapProps> = ({ config }) => {
         height: mapHeight * tileSize,
       }}
     >
-      {tiles.map((tile, index) => (
-        <div
+      {flatTiles.map((tile, index) => (
+        <TerrainTile
           key={index}
-          className={`absolute ${getTileClass(tile.type)}`}
-          style={{
-            width: tileSize,
-            height: tileSize,
-            left: tile.x * tileSize,
-            top: tile.y * tileSize,
-          }}
+          type={tile.type}
+          x={tile.x}
+          y={tile.y}
+          tileSize={tileSize}
         />
       ))}
     </div>
   );
 };
-
-function getTileClass(type: Tile["type"]): string {
-  switch (type) {
-    case "grass":
-      return "bg-game-grass";
-    case "ground":
-      return "bg-game-ground";
-    case "rock":
-      return "bg-game-rock";
-    case "water":
-      return "bg-game-water";
-    default:
-      return "bg-game-grass";
-  }
-}
 
 export default GameMap;
