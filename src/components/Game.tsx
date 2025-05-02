@@ -1,7 +1,5 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import GameMap from "./GameMap";
-import GameCharacter from "./GameCharacter";
 import AnimationSelector from "./AnimationSelector";
 import GameController from "./GameController";
 import { CharacterSprite, GameConfig, Position, SpriteAnimation, TileMap } from "@/types/game";
@@ -136,16 +134,13 @@ const Game: React.FC = () => {
               >
                 <div className="relative">
                   {tileMap.length > 0 && (
-                    <>
-                      <GameMap config={gameConfig} tileMap={tileMap} />
-                      <GameCharacter
-                        sprite={sprite}
-                        position={position}
-                        animation={selectedAnimation}
-                        scale={gameConfig.scale}
-                        tileSize={gameConfig.tileSize}
-                      />
-                    </>
+                    <GameMap 
+                      config={gameConfig} 
+                      tileMap={tileMap}
+                      characterPosition={position}
+                      characterSprite={sprite}
+                      characterAnimation={selectedAnimation}
+                    />
                   )}
                 </div>
               </div>

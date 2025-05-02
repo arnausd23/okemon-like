@@ -1,15 +1,25 @@
 
 import React from "react";
-import { GameConfig, Tile, TileMap } from "@/types/game";
+import { CharacterSprite, GameConfig, Position, SpriteAnimation, Tile, TileMap } from "@/types/game";
 import TerrainTile from "./TerrainTile";
+import GameCharacter from "./GameCharacter";
 
 interface GameMapProps {
   config: GameConfig;
   tileMap: TileMap;
+  characterPosition: Position;
+  characterSprite: CharacterSprite;
+  characterAnimation: SpriteAnimation;
 }
 
-const GameMap: React.FC<GameMapProps> = ({ config, tileMap }) => {
-  const { tileSize, mapWidth, mapHeight } = config;
+const GameMap: React.FC<GameMapProps> = ({ 
+  config, 
+  tileMap, 
+  characterPosition, 
+  characterSprite, 
+  characterAnimation 
+}) => {
+  const { tileSize, mapWidth, mapHeight, scale } = config;
   
   // Flatten the tilemap for rendering
   const flatTiles: Tile[] = [];
@@ -37,6 +47,15 @@ const GameMap: React.FC<GameMapProps> = ({ config, tileMap }) => {
           tileSize={tileSize}
         />
       ))}
+      
+      {/* Render character within the map */}
+      <GameCharacter
+        sprite={characterSprite}
+        position={characterPosition}
+        animation={characterAnimation}
+        scale={scale}
+        tileSize={tileSize}
+      />
     </div>
   );
 };
