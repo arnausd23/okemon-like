@@ -49,6 +49,7 @@ const TerrainTile: React.FC<TerrainTileProps> = ({ type, x, y, tileSize }) => {
       style={{
         left: x * tileSize,
         top: y * tileSize,
+        zIndex: 1 // Lower z-index than character
       }}
     />
   );

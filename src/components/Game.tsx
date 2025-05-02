@@ -33,6 +33,27 @@ const Game: React.FC = () => {
   useEffect(() => {
     const map = generateTileMap(gameConfig.mapWidth, gameConfig.mapHeight);
     setTileMap(map);
+    
+    // Ensure the starting position is walkable
+    const centerX = Math.floor(gameConfig.mapWidth / 2);
+    const centerY = Math.floor(gameConfig.mapHeight / 2);
+    
+    if (map[centerY] && map[centerY][centerX]) {
+      map[centerY][centerX].type = "ground"; // Ensure spawn position is walkable
+      
+      // Make the area around the character walkable too
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = centerX + dx;
+          const ny = centerY + dy;
+          if (nx >= 0 && nx < gameConfig.mapWidth && ny >= 0 && ny < gameConfig.mapHeight) {
+            map[ny][nx].type = "ground";
+          }
+        }
+      }
+    }
+    
+    setTileMap([...map]); // Update with the modified map
   }, [gameConfig.mapWidth, gameConfig.mapHeight]);
 
   const handleMove = (dx: number, dy: number) => {
@@ -60,7 +81,7 @@ const Game: React.FC = () => {
     });
   };
 
-  // Scroll the map to center on the character
+  // Center the map view on the character with smooth scrolling
   useEffect(() => {
     if (gameContainerRef.current && tileMap.length > 0) {
       const container = gameContainerRef.current;
@@ -75,8 +96,8 @@ const Game: React.FC = () => {
       
       // Scroll the container
       container.scrollTo({
-        left: scrollX,
-        top: scrollY,
+        left: Math.max(0, scrollX),
+        top: Math.max(0, scrollY),
         behavior: 'smooth'
       });
     }

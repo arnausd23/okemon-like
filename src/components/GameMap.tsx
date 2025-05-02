@@ -25,6 +25,7 @@ const GameMap: React.FC<GameMapProps> = ({ config, tileMap }) => {
       style={{
         width: mapWidth * tileSize,
         height: mapHeight * tileSize,
+        position: 'relative',
       }}
     >
       {flatTiles.map((tile, index) => (

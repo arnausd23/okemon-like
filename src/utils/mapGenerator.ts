@@ -45,7 +45,7 @@ export function generateTileMap(width: number, height: number): TileMap {
         map[y][x].type === "grass" && 
         Math.random() < 0.05 &&
         // Avoid water in the center so the character doesn't spawn on water
-        (x < width/2 - 3 || x > width/2 + 3 || y < height/2 - 3 || y > height/2 + 3)
+        (x < width/2 - 5 || x > width/2 + 5 || y < height/2 - 5 || y > height/2 + 5)
       ) {
         map[y][x].type = "water";
         
@@ -56,7 +56,9 @@ export function generateTileMap(width: number, height: number): TileMap {
             const ny = y + dy;
             if (
               nx >= 0 && nx < width && ny >= 0 && ny < height &&
-              map[ny][nx].type === "grass" && Math.random() < 0.7
+              map[ny][nx].type === "grass" && Math.random() < 0.7 &&
+              // Still avoid center area
+              (nx < width/2 - 5 || nx > width/2 + 5 || ny < height/2 - 5 || ny > height/2 + 5)
             ) {
               map[ny][nx].type = "water";
             }
@@ -66,12 +68,12 @@ export function generateTileMap(width: number, height: number): TileMap {
     }
   }
   
-  // Make sure the center (player spawn) is always walkable
+  // Make sure the center (player spawn) is always walkable - create a larger walkable area
   const centerX = Math.floor(width / 2);
   const centerY = Math.floor(height / 2);
   
-  for (let dy = -1; dy <= 1; dy++) {
-    for (let dx = -1; dx <= 1; dx++) {
+  for (let dy = -2; dy <= 2; dy++) {
+    for (let dx = -2; dx <= 2; dx++) {
       const nx = centerX + dx;
       const ny = centerY + dy;
       if (nx >= 0 && nx < width && ny >= 0 && ny < height) {

@@ -22,19 +22,19 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
 
   useEffect(() => {
     if (containerRef.current) {
-      // Position the character directly on the tile, not above it
+      // Position the character directly on top of the terrain
       containerRef.current.style.transform = `translate(${position.x * tileSize}px, ${position.y * tileSize}px)`;
     }
   }, [position, tileSize]);
 
-  // Using a higher z-index to ensure character is above terrain
   return (
     <div 
       ref={containerRef}
       className="absolute transition-transform duration-300"
       style={{
-        zIndex: 20, // Higher z-index than terrain tiles
-        willChange: "transform"
+        zIndex: 10, // Higher than the terrain z-index but not too high
+        willChange: "transform",
+        pointerEvents: "none" // Prevents character from blocking interactions
       }}
     >
       <SpriteRenderer
