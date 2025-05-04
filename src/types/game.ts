@@ -47,3 +47,13 @@ export interface Tile {
 }
 
 export type TileMap = Tile[][];
+
+export interface NPC {
+  id: string;
+  name: string;
+  position: Position;
+  sprite: CharacterSprite;
+  animation: SpriteAnimation;
+  detectionRange: number; // Number of tiles in front of NPC that will trigger an encounter
+  direction: 'up' | 'down' | 'left' | 'right'; // The direction the NPC is facing
+}

@@ -1,8 +1,9 @@
 
 import React from "react";
-import { CharacterSprite, GameConfig, Position, SpriteAnimation, Tile, TileMap } from "@/types/game";
+import { CharacterSprite, GameConfig, NPC, Position, SpriteAnimation, Tile, TileMap } from "@/types/game";
 import TerrainTile from "./TerrainTile";
 import GameCharacter from "./GameCharacter";
+import GameNPC from "./GameNPC";
 
 interface GameMapProps {
   config: GameConfig;
@@ -10,6 +11,8 @@ interface GameMapProps {
   characterPosition: Position;
   characterSprite: CharacterSprite;
   characterAnimation: SpriteAnimation;
+  npcs: NPC[];
+  onNPCEncounter: (npc: NPC) => void;
 }
 
 const GameMap: React.FC<GameMapProps> = ({ 
@@ -17,7 +20,9 @@ const GameMap: React.FC<GameMapProps> = ({
   tileMap, 
   characterPosition, 
   characterSprite, 
-  characterAnimation 
+  characterAnimation,
+  npcs,
+  onNPCEncounter
 }) => {
   const { tileSize, mapWidth, mapHeight, scale } = config;
   
@@ -45,6 +50,16 @@ const GameMap: React.FC<GameMapProps> = ({
           x={tile.x}
           y={tile.y}
           tileSize={tileSize}
+        />
+      ))}
+      
+      {/* Render NPCs */}
+      {npcs.map((npc) => (
+        <GameNPC 
+          key={npc.id}
+          npc={npc}
+          tileSize={tileSize}
+          scale={scale}
         />
       ))}
       

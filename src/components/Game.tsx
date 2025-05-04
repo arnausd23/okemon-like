@@ -3,8 +3,9 @@ import React, { useEffect, useRef, useState } from "react";
 import GameMap from "./GameMap";
 import AnimationSelector from "./AnimationSelector";
 import GameController from "./GameController";
-import { CharacterSprite, GameConfig, Position, SpriteAnimation, TileMap } from "@/types/game";
+import { CharacterSprite, GameConfig, NPC, Position, SpriteAnimation, TileMap } from "@/types/game";
 import { characterSprites } from "@/data/spriteData";
+import { npcs } from "@/data/npcData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { generateTileMap, getTileAt } from "@/utils/mapGenerator";
@@ -17,6 +18,8 @@ const Game: React.FC = () => {
   const [selectedAnimation, setSelectedAnimation] = useState<SpriteAnimation>(sprite.animations[0]);
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const [showBattleAlert, setShowBattleAlert] = useState(false);
+  const [battleAlertText, setBattleAlertText] = useState("");
+  const [gameNPCs, setGameNPCs] = useState<NPC[]>(npcs);
 
   const gameConfig: GameConfig = {
     tileSize: 32,
@@ -55,8 +58,16 @@ const Game: React.FC = () => {
       }
     }
     
+    // Ensure NPC positions are walkable
+    gameNPCs.forEach(npc => {
+      const { x, y } = npc.position;
+      if (x >= 0 && x < gameConfig.mapWidth && y >= 0 && y < gameConfig.mapHeight) {
+        map[y][x].type = "ground";
+      }
+    });
+    
     setTileMap([...map]); // Update with the modified map
-  }, [gameConfig.mapWidth, gameConfig.mapHeight]);
+  }, [gameConfig.mapWidth, gameConfig.mapHeight, gameNPCs]);
 
   const checkForBattle = (tileType: string) => {
     // Only trigger battles on grass tiles
@@ -67,6 +78,7 @@ const Game: React.FC = () => {
           description: "A wild Pokémon appeared!",
           duration: 3000,
         });
+        setBattleAlertText("A wild Pokémon appeared!");
         setShowBattleAlert(true);
         
         // Hide the alert after 3 seconds
@@ -75,6 +87,57 @@ const Game: React.FC = () => {
         }, 3000);
       }
     }
+  };
+
+  const checkForNPCEncounter = (newPos: Position): boolean => {
+    for (const npc of gameNPCs) {
+      // Check if character is in NPC's detection range
+      const detectionTiles: Position[] = [];
+      const { x, y } = npc.position;
+      
+      for (let i = 1; i <= npc.detectionRange; i++) {
+        switch(npc.direction) {
+          case "up":
+            detectionTiles.push({ x, y: y - i });
+            break;
+          case "down":
+            detectionTiles.push({ x, y: y + i });
+            break;
+          case "left":
+            detectionTiles.push({ x: x - i, y });
+            break;
+          case "right":
+            detectionTiles.push({ x: x + i, y });
+            break;
+        }
+      }
+      
+      // Check if new position matches any of the detection tiles
+      const isInDetectionRange = detectionTiles.some(
+        tile => tile.x === newPos.x && tile.y === newPos.y
+      );
+      
+      if (isInDetectionRange) {
+        handleNPCEncounter(npc);
+        return true;
+      }
+    }
+    
+    return false;
+  };
+
+  const handleNPCEncounter = (npc: NPC) => {
+    toast("Trainer battle!", {
+      description: `${npc.name} wants to battle!`,
+      duration: 3000,
+    });
+    setBattleAlertText(`${npc.name} wants to battle!`);
+    setShowBattleAlert(true);
+    
+    // Hide the alert after 3 seconds
+    setTimeout(() => {
+      setShowBattleAlert(false);
+    }, 3000);
   };
 
   const handleMove = (dx: number, dy: number) => {
@@ -92,10 +155,27 @@ const Game: React.FC = () => {
         return prev;
       }
       
+      // Check if the new position is occupied by an NPC
+      const isNPCPosition = gameNPCs.some(
+        npc => npc.position.x === newX && npc.position.y === newY
+      );
+      
+      if (isNPCPosition) {
+        return prev;
+      }
+      
+      // Check if the new position is in NPC detection range
+      const triggerNPCBattle = checkForNPCEncounter({ x: newX, y: newY });
+      
       // Check if the new position is walkable
       const targetTile = getTileAt(tileMap, newX, newY);
       if (targetTile && isWalkable(targetTile.type)) {
-        // Check for battle trigger
+        // If NPC battle triggered, stay in place
+        if (triggerNPCBattle) {
+          return prev;
+        }
+        
+        // Check for wild Pokémon battle trigger
         checkForBattle(targetTile.type);
         return { x: newX, y: newY };
       }
@@ -136,9 +216,9 @@ const Game: React.FC = () => {
       {showBattleAlert && (
         <div className="mb-4">
           <Alert>
-            <AlertTitle>Battle triggered!</AlertTitle>
+            <AlertTitle>{battleAlertText.includes("Trainer") ? "Trainer battle!" : "Battle triggered!"}</AlertTitle>
             <AlertDescription>
-              A wild Pokémon appeared!
+              {battleAlertText}
             </AlertDescription>
           </Alert>
         </div>
@@ -176,6 +256,8 @@ const Game: React.FC = () => {
                       characterPosition={position}
                       characterSprite={sprite}
                       characterAnimation={selectedAnimation}
+                      npcs={gameNPCs}
+                      onNPCEncounter={handleNPCEncounter}
                     />
                   )}
                 </div>
@@ -208,6 +290,32 @@ const Game: React.FC = () => {
                     selectedAnimation={selectedAnimation}
                     onSelectAnimation={setSelectedAnimation}
                   />
+                </section>
+                
+                <section>
+                  <h3 className="font-semibold text-lg mb-3">NPCs</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {gameNPCs.map((npc) => (
+                      <div 
+                        key={npc.id}
+                        className="bg-card rounded-lg border p-3 flex flex-col items-center"
+                      >
+                        <div className="bg-black/10 rounded-md p-2 mb-2">
+                          <div className="w-16 h-16 relative">
+                            <SpriteRenderer
+                              sprite={npc.sprite}
+                              animation={npc.animation}
+                              scale={2}
+                            />
+                          </div>
+                        </div>
+                        <span className="text-sm font-medium">{npc.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          Facing: {npc.direction}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </section>
                 
                 <section>
