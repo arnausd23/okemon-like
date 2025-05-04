@@ -1,3 +1,4 @@
+
 # Game Sprite Modification Guide
 
 This guide explains how to modify sprites in the Pixel Adventure game and provides an overview of key files in the codebase.
@@ -49,7 +50,11 @@ export const terrainSprites: TerrainSprite[] = [
     id: "grass",
     name: "Grass",
     src: "/path/to/your/new/grass/image.png", // Change this path
-    frame: { x: 0, y: 0, width: 32, height: 32 },
+    frames: [
+      { x: 0, y: 0, width: 32, height: 32 },
+      // Add more frames for animation
+    ],
+    frameRate: 8, // Optional: Add this for animated tiles
     collidable: false
   },
   // Other terrain definitions...
@@ -110,9 +115,28 @@ export const npcs: NPC[] = [
 When modifying sprites, these parameters are important:
 
 - **`src`**: Path to the sprite sheet image
-- **`frame`**: Position in the sprite sheet (x, y, width, height) in pixels
+- **`frames`**: Array of positions in the sprite sheet (x, y, width, height) in pixels
 - **`frameRate`**: Animation speed (frames per second)
 - **`collidable`**: Whether the player can walk on this terrain (for terrain sprites)
+
+## Adding Animated Terrain
+
+To create animated terrain (like water):
+
+```typescript
+{
+  id: "water",
+  name: "Water",
+  src: "/path/to/water/spritesheet.png",
+  frames: [
+    { x: 0, y: 0, width: 32, height: 32 },
+    { x: 32, y: 0, width: 32, height: 32 },
+    { x: 64, y: 0, width: 32, height: 32 }
+  ],
+  frameRate: 4, // Slower animation for water
+  collidable: true
+}
+```
 
 ## Adding New Sprites
 
@@ -144,3 +168,4 @@ If sprites aren't appearing correctly:
 - Organize sprite sheets logically with frames of the same animation in sequence
 - Use transparent backgrounds (PNG format) for sprites
 - Test sprite changes in different game scenarios
+- For animated terrain, use 2-4 frames for subtle effects (water ripples, grass swaying)

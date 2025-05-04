@@ -36,7 +36,8 @@ export interface TerrainSprite {
   id: string;
   name: string;
   src: string;
-  frame: SpriteFrame;
+  frames: SpriteFrame[]; // Now supports multiple frames
+  frameRate?: number;     // Optional frame rate for animations
   collidable: boolean;
 }
 
