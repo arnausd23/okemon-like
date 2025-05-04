@@ -12,7 +12,7 @@ export const terrainSprites: TerrainSprite[] = [
   {
     id: "water",
     name: "Water",
-    src: "/lovable-uploads/e2f81feb-01b8-4e86-9ea2-016d1d35e55e.png",
+    src: "/lovable-uploads/5af0a10a-05dd-49fa-9807-2353f0a13a9e.png",
     frame: { x: 0, y: 0, width: 32, height: 32 },
     collidable: true
   },
@@ -26,7 +26,7 @@ export const terrainSprites: TerrainSprite[] = [
   {
     id: "ground",
     name: "Ground",
-    src: "/lovable-uploads/8b4edc24-e884-43b9-adb4-95e11e5ccdb7.png",
+    src: "/lovable-uploads/9c37cff2-6351-40bc-8830-61e51700cee6.png",
     frame: { x: 0, y: 0, width: 32, height: 32 },
     collidable: false
   }
