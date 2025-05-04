@@ -1,5 +1,5 @@
 
-import { CharacterSprite, NPC } from "@/types/game";
+import { CharacterSprite, NPC, SpriteAnimation } from "@/types/game";
 
 // Define NPC character sprites based on the provided spritesheet
 export const npcSprites: CharacterSprite[] = [

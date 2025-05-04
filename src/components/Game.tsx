@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from "react";
 import GameMap from "./GameMap";
 import AnimationSelector from "./AnimationSelector";
@@ -12,6 +11,7 @@ import { generateTileMap, getTileAt } from "@/utils/mapGenerator";
 import { isWalkable, terrainSprites } from "@/data/terrainData";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { toast } from "./ui/sonner";
+import SpriteRenderer from "./SpriteRenderer";
 
 const Game: React.FC = () => {
   const [sprite] = useState<CharacterSprite>(characterSprites[0]);
