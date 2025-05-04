@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from "react";
 import GameMap from "./GameMap";
 import AnimationSelector from "./AnimationSelector";
@@ -7,12 +8,15 @@ import { characterSprites } from "@/data/spriteData";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { generateTileMap, getTileAt } from "@/utils/mapGenerator";
-import { isWalkable } from "@/data/terrainData";
+import { isWalkable, terrainSprites } from "@/data/terrainData";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { toast } from "./ui/sonner";
 
 const Game: React.FC = () => {
   const [sprite] = useState<CharacterSprite>(characterSprites[0]);
   const [selectedAnimation, setSelectedAnimation] = useState<SpriteAnimation>(sprite.animations[0]);
   const gameContainerRef = useRef<HTMLDivElement>(null);
+  const [showBattleAlert, setShowBattleAlert] = useState(false);
 
   const gameConfig: GameConfig = {
     tileSize: 32,
@@ -54,6 +58,25 @@ const Game: React.FC = () => {
     setTileMap([...map]); // Update with the modified map
   }, [gameConfig.mapWidth, gameConfig.mapHeight]);
 
+  const checkForBattle = (tileType: string) => {
+    // Only trigger battles on grass tiles
+    if (tileType === "grass") {
+      // 60% chance to trigger a battle
+      if (Math.random() < 0.6) {
+        toast("Battle triggered!", {
+          description: "A wild Pokémon appeared!",
+          duration: 3000,
+        });
+        setShowBattleAlert(true);
+        
+        // Hide the alert after 3 seconds
+        setTimeout(() => {
+          setShowBattleAlert(false);
+        }, 3000);
+      }
+    }
+  };
+
   const handleMove = (dx: number, dy: number) => {
     if (tileMap.length === 0) return; // Don't move if map isn't generated yet
     
@@ -72,6 +95,8 @@ const Game: React.FC = () => {
       // Check if the new position is walkable
       const targetTile = getTileAt(tileMap, newX, newY);
       if (targetTile && isWalkable(targetTile.type)) {
+        // Check for battle trigger
+        checkForBattle(targetTile.type);
         return { x: newX, y: newY };
       }
       
@@ -108,10 +133,21 @@ const Game: React.FC = () => {
         <p className="text-muted-foreground">A Pokemon-like sprite animation game</p>
       </header>
 
+      {showBattleAlert && (
+        <div className="mb-4">
+          <Alert>
+            <AlertTitle>Battle triggered!</AlertTitle>
+            <AlertDescription>
+              A wild Pokémon appeared!
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
       <Tabs defaultValue="play">
         <TabsList className="grid grid-cols-2 mb-4">
           <TabsTrigger value="play">Play Game</TabsTrigger>
-          <TabsTrigger value="animations">Character Animations</TabsTrigger>
+          <TabsTrigger value="sprites">Game Sprites</TabsTrigger>
         </TabsList>
 
         <TabsContent value="play">
@@ -119,7 +155,7 @@ const Game: React.FC = () => {
             <CardHeader>
               <CardTitle>Game World</CardTitle>
               <CardDescription>
-                Explore the pixel world with your character. Use arrow keys or on-screen controls to move.
+                Explore the pixel world with your character. Use arrow keys or WASD to move.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -155,20 +191,49 @@ const Game: React.FC = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="animations">
+        <TabsContent value="sprites">
           <Card>
             <CardHeader>
-              <CardTitle>Character Animations</CardTitle>
+              <CardTitle>Game Sprites</CardTitle>
               <CardDescription>
-                Select an animation to preview it
+                All sprites and animations used in the game
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <AnimationSelector
-                sprite={sprite}
-                selectedAnimation={selectedAnimation}
-                onSelectAnimation={setSelectedAnimation}
-              />
+              <div className="space-y-8">
+                <section>
+                  <h3 className="font-semibold text-lg mb-3">Character Animations</h3>
+                  <AnimationSelector
+                    sprite={sprite}
+                    selectedAnimation={selectedAnimation}
+                    onSelectAnimation={setSelectedAnimation}
+                  />
+                </section>
+                
+                <section>
+                  <h3 className="font-semibold text-lg mb-3">Terrain Sprites</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {terrainSprites.map((terrain) => (
+                      <div 
+                        key={terrain.id}
+                        className="bg-card rounded-lg border p-3 flex flex-col items-center"
+                      >
+                        <div className="bg-black/10 rounded-md p-2 mb-2">
+                          <img 
+                            src={terrain.src} 
+                            alt={terrain.name}
+                            className="w-16 h-16 object-contain pixel-art"
+                          />
+                        </div>
+                        <span className="text-sm font-medium">{terrain.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {terrain.collidable ? "Not Walkable" : "Walkable"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { CharacterSprite, Position, SpriteAnimation } from "@/types/game";
 import { Button } from "./ui/button";
+import { toast } from "@/components/ui/sonner";
 
 interface GameControllerProps {
   onMove: (dx: number, dy: number) => void;
@@ -38,6 +39,7 @@ const GameController: React.FC<GameControllerProps> = ({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      // Handle only arrow keys, WASD already handled in existing code
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "a", "s", "d"].includes(e.key)) {
         e.preventDefault();
         setKeysPressed((prev) => ({ ...prev, [e.key]: true }));
