@@ -143,6 +143,8 @@ const Game: React.FC = () => {
   const handleMove = (dx: number, dy: number) => {
     if (tileMap.length === 0) return; // Don't move if map isn't generated yet
     
+    console.log("Move request: dx=", dx, "dy=", dy); // Debug logging
+    
     setPosition((prev) => {
       const newX = prev.x + dx;
       const newY = prev.y + dy;
@@ -169,6 +171,7 @@ const Game: React.FC = () => {
       
       // Check if the new position is walkable
       const targetTile = getTileAt(tileMap, newX, newY);
+      console.log("Target tile:", targetTile); // Debug logging
       if (targetTile && isWalkable(targetTile.type)) {
         // If NPC battle triggered, stay in place
         if (triggerNPCBattle) {
@@ -177,11 +180,20 @@ const Game: React.FC = () => {
         
         // Check for wild Pokémon battle trigger
         checkForBattle(targetTile.type);
+        console.log("Moving to:", newX, newY); // Debug logging
         return { x: newX, y: newY };
       }
       
       return prev;
     });
+  };
+
+  // Handle clicking on the game area to activate keyboard controls
+  const handleGameAreaClick = () => {
+    // This will ensure keyboard events work after clicking
+    window.focus();
+    // Inform the user that keyboard controls are active
+    toast("Keyboard controls active", { duration: 1500 });
   };
 
   // Center the map view on the character with smooth scrolling
@@ -245,8 +257,11 @@ const Game: React.FC = () => {
                 style={{
                   width: "100%",
                   height: "400px",
-                  maxWidth: "100%"
+                  maxWidth: "100%",
+                  cursor: "pointer" // Indicate it's clickable
                 }}
+                tabIndex={0} // Make it focusable
+                onClick={handleGameAreaClick} // Handle click to activate keyboard controls
               >
                 <div className="relative">
                   {tileMap.length > 0 && (
