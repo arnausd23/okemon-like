@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { CharacterSprite, Position, SpriteAnimation } from "@/types/game";
 import { Button } from "./ui/button";
 import { toast } from "@/components/ui/sonner";
@@ -18,7 +18,6 @@ const GameController: React.FC<GameControllerProps> = ({
   currentAnimation
 }) => {
   const [keysPressed, setKeysPressed] = useState<Record<string, boolean>>({});
-  const controllerRef = useRef<HTMLDivElement>(null);
 
   const getAnimationByDirection = useCallback(
     (direction: string): SpriteAnimation => {
@@ -40,7 +39,7 @@ const GameController: React.FC<GameControllerProps> = ({
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      // Handle only arrow keys and WASD
+      // Handle only arrow keys, WASD already handled in existing code
       if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "a", "s", "d"].includes(e.key)) {
         e.preventDefault();
         setKeysPressed((prev) => ({ ...prev, [e.key]: true }));
@@ -83,25 +82,14 @@ const GameController: React.FC<GameControllerProps> = ({
     []
   );
 
-  // Focus management - ensure we capture focus when clicking the game area
-  const handleGameAreaClick = useCallback(() => {
-    // Focus on the controller div to ensure it can receive keyboard events
-    if (controllerRef.current) {
-      controllerRef.current.focus();
-    }
-    // We could also toast to indicate keyboard controls are active
-    toast("Keyboard controls active", { duration: 1500 });
-  }, []);
-
   // Handle keyboard movement
   useEffect(() => {
-    // Make sure we're listening for keyboard events at the document level
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
     };
   }, [handleKeyDown, handleKeyUp]);
 
@@ -149,13 +137,7 @@ const GameController: React.FC<GameControllerProps> = ({
   };
 
   return (
-    <div 
-      ref={controllerRef} 
-      className="mt-4" 
-      tabIndex={0} // Make the div focusable
-      onFocus={() => console.log("Controller focused")}
-      onBlur={() => console.log("Controller lost focus")}
-    >
+    <div className="mt-4">
       <p className="text-sm text-muted-foreground mb-2">
         Use arrow keys or WASD to move, or tap the buttons below
       </p>
