@@ -23,11 +23,7 @@ const GameCharacter: React.FC<GameCharacterProps> = ({
   useEffect(() => {
     if (containerRef.current) {
       // Position the character directly on top of the terrain
-      const x = position.x * 32;
-      const y = position.y * 32;
-      const scaleRatio = tileSize / 32;
-      
-      containerRef.current.style.transform = `translate(${x * scaleRatio}px, ${y * scaleRatio}px)`;
+      containerRef.current.style.transform = `translate(${position.x * tileSize}px, ${position.y * tileSize}px)`;
     }
   }, [position, tileSize]);
 

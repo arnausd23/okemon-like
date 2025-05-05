@@ -78,7 +78,7 @@ const TerrainTile: React.FC<TerrainTileProps> = ({ type, x, y, tileSize }) => {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the sprite frame - forcing 32px size
+    // Draw the sprite frame
     ctx.drawImage(
       img,
       frame.x,
@@ -87,22 +87,20 @@ const TerrainTile: React.FC<TerrainTileProps> = ({ type, x, y, tileSize }) => {
       frame.height,
       0,
       0,
-      32,  // Fix tile size to 32
-      32   // Fix tile size to 32
+      tileSize,
+      tileSize
     );
   };
   
   return (
     <canvas
       ref={canvasRef}
-      width={32}  // Fixed canvas width to 32px
-      height={32} // Fixed canvas height to 32px
+      width={tileSize}
+      height={tileSize}
       className="absolute pixel-art"
       style={{
-        left: x * 32,  // Use 32px as the base tile size
-        top: y * 32,   // Use 32px as the base tile size
-        transform: `scale(${tileSize/32})`, // Scale up to match the requested tileSize
-        transformOrigin: 'top left',
+        left: x * tileSize,
+        top: y * tileSize,
         zIndex: 1 // Lower z-index than character
       }}
     />
