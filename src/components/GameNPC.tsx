@@ -40,6 +40,7 @@ const GameNPC: React.FC<GameNPCProps> = ({
   };
 
   const detectionTiles = getDetectionTiles();
+  const scaleRatio = tileSize / 32;
   
   return (
     <div className="npc-container">

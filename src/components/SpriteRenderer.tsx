@@ -90,14 +90,14 @@ const SpriteRenderer: React.FC<SpriteRendererProps> = ({
       frame.height,
       0,
       0,
-      frame.width * scale,
-      frame.height * scale
+      32 * scale,  // Always use 32px as the base size multiplied by scale
+      32 * scale   // Always use 32px as the base size multiplied by scale
     );
   };
 
-  const frame = animation.frames[0] || { width: 32, height: 32 };
-  const width = frame.width * scale;
-  const height = frame.height * scale;
+  // Set a fixed size of 32px × scale for all sprites
+  const width = 32 * scale;
+  const height = 32 * scale;
 
   return (
     <canvas 
